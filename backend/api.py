@@ -23,7 +23,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse
 from pydantic import BaseModel
 
-from config.models import get_all_companies, get_company
+from config.models import get_all_companies, get_company, reload_companies
 from config.settings import settings
 from report_generator.pipeline import ReportPipeline, get_previous_reports
 
@@ -88,6 +88,9 @@ class GenerateResponse(BaseModel):
 
 # ---------------------------------------------------------------------------
 # Routes
+# 
+# NOTE: If any routes are added to create or update companies in company_config.json,
+# you MUST call `reload_companies()` after the write succeeds to bust the cache.
 # ---------------------------------------------------------------------------
 
 @app.get("/api/slides")

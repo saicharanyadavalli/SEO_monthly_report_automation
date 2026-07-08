@@ -169,7 +169,7 @@ class ChartGenerator:
         fig, ax = plt.subplots(figsize=(5.0, 3.6))
 
         b1 = ax.bar(x - w/2, google, width=w, color=self.primary_color, label="Google", zorder=3, edgecolor="white", linewidth=0.4)
-        b2 = ax.bar(x + w/2, direct, width=w, color="#4472C4", label="Direct", zorder=3, edgecolor="white", linewidth=0.4)
+        b2 = ax.bar(x + w/2, direct, width=w, color=self.accent_color, label="Direct", zorder=3, edgecolor="white", linewidth=0.4)
 
         ax.set_xticks(x)
         ax.set_xticklabels(months, rotation=0)

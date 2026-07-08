@@ -1,12 +1,14 @@
 import { NextRequest } from 'next/server';
-import { spawn } from 'child_process';
+import { spawn, ChildProcess } from 'child_process';
 import path from 'path';
 
 const WRAPPER_PATH = path.join(process.cwd(), 'lib', 'pipeline', 'generate_wrapper.py');
 
+export let activeProcess: ChildProcess | null = null;
+
 export async function POST(req: NextRequest) {
   const body = await req.json();
-  const { clientKey, useRealData, useAiInsights, slideList } = body;
+  const { clientKey, useRealData, useAiInsights, slideList, llmModel } = body;
 
   if (!clientKey) {
     return new Response("Missing clientKey", { status: 400 });
@@ -18,10 +20,21 @@ export async function POST(req: NextRequest) {
   if (slideList && Array.isArray(slideList) && slideList.length > 0) {
     args.push('--slide-list', slideList.join(','));
   }
+  if (llmModel && typeof llmModel === 'string') {
+    args.push('--model', llmModel);
+  }
 
   const stream = new ReadableStream({
     start(controller) {
       const pythonProcess = spawn('python', args);
+      activeProcess = pythonProcess;
+
+      const timeoutId: NodeJS.Timeout = setTimeout(() => {
+        pythonProcess.kill('SIGTERM');
+        controller.enqueue(`data: {"type": "result", "success": false, "error_message": "Pipeline timed out after 8 minutes. The report generation took too long and was cancelled."}\n\n`);
+        try { controller.close(); } catch (e) {}
+        activeProcess = null;
+      }, 480000);
 
       pythonProcess.stdout.on('data', (data) => {
         const lines = data.toString().split('\n');
@@ -44,13 +57,17 @@ export async function POST(req: NextRequest) {
       });
 
       pythonProcess.on('close', (code) => {
+        clearTimeout(timeoutId);
         controller.enqueue(`data: {"type": "close", "code": ${code}}\n\n`);
-        controller.close();
+        try { controller.close(); } catch (e) {}
+        activeProcess = null;
       });
       
       pythonProcess.on('error', (err) => {
+        clearTimeout(timeoutId);
         controller.enqueue(`data: {"type": "result", "success": false, "error_message": "${err.message}"}\n\n`);
-        controller.close();
+        try { controller.close(); } catch (e) {}
+        activeProcess = null;
       });
     }
   });

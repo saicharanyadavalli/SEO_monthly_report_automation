@@ -16,8 +16,7 @@ export interface LLMModel {
 }
 
 export const SUPPORTED_LLM_MODELS: LLMModel[] = [
-  { id: 'claude-sonnet-4-20250514', name: 'Claude Sonnet 4', provider: 'Anthropic' },
-  { id: 'claude-3-5-haiku-20241022', name: 'Claude Haiku 3.5', provider: 'Anthropic' },
-  { id: 'claude-3-7-sonnet-20250219', name: 'Claude Sonnet 3.7', provider: 'Anthropic' },
   { id: 'glm-5', name: 'GLM-5', provider: 'Zhipu' },
+  { id: 'glm-4-7', name: 'GLM-4-7', provider: 'Zhipu' },
+  { id: 'glm-4-7-flash', name: 'GLM-4-7 Flash', provider: 'Zhipu' },
 ];

@@ -79,7 +79,12 @@ def get_company(key: str) -> Optional[CompanyConfig]:
 
 
 def reload_companies() -> None:
-    """Reload company configurations from file."""
+    """
+    Reload company configurations from file.
+    
+    NOTE: This must be called after any successful write to company_config.json
+    to ensure the module-level _companies_cache is busted and updated.
+    """
     global _companies_cache
     _companies_cache = None
     get_all_companies()

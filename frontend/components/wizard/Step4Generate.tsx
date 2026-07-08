@@ -1,5 +1,7 @@
 import { useState, useMemo, useEffect } from "react";
+import Link from "next/link";
 import { useWizardStore } from "@/store/useWizardStore";
+import { useSettingsStore } from "@/store/useSettingsStore";
 import { ClientConfig } from "@/lib/config/clientRepository";
 import { SLIDE_CATALOG } from "@/lib/catalog/slides";
 import { SUPPORTED_LLM_MODELS } from "@/lib/pipeline/models";
@@ -15,7 +17,8 @@ import {
   ChevronUp, 
   Play, 
   FileBox, 
-  Download 
+  Download,
+  RefreshCw
 } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
@@ -42,9 +45,33 @@ export function Step4Generate({ clients }: Step4Props) {
   const [errorDetails, setErrorDetails] = useState<string | null>(null);
   const [showErrorDetails, setShowErrorDetails] = useState(false);
   const [reportUrl, setReportUrl] = useState<string | null>(null);
+  const [authStatus, setAuthStatus] = useState<'checking' | 'authenticated' | 'unauthenticated' | 'unknown'>('checking');
+
+  useEffect(() => {
+    async function checkAuth() {
+      try {
+        const response = await fetch('/api/auth/status');
+        const data = await response.json();
+        if (data.authenticated === true) {
+          setAuthStatus('authenticated');
+        } else if (data.missingCredentials === true || data.authenticated === false) {
+          setAuthStatus('unauthenticated');
+        } else {
+          setAuthStatus('unknown');
+        }
+      } catch (e) {
+        setAuthStatus('unknown');
+      }
+    }
+    checkAuth();
+  }, []);
+  const [abortController, setAbortController] = useState<AbortController | null>(null);
+
+  const { customModels } = useSettingsStore();
 
   const client = useMemo(() => clients.find(c => c.key === config.clientKey), [clients, config.clientKey]);
-  const modelName = useMemo(() => SUPPORTED_LLM_MODELS.find(m => m.id === config.llmModel)?.name, [config.llmModel]);
+  const allModels = useMemo(() => [...SUPPORTED_LLM_MODELS, ...customModels], [customModels]);
+  const modelName = useMemo(() => allModels.find(m => m.id === config.llmModel)?.name, [config.llmModel, allModels]);
   
   const slidesMap = useMemo(() => {
     const map = new Map();
@@ -55,14 +82,51 @@ export function Step4Generate({ clients }: Step4Props) {
   const visibleSlides = expandedSlides ? orderedSlideIds : orderedSlideIds.slice(0, 10);
   const remainingCount = orderedSlideIds.length - 10;
 
+  useEffect(() => {
+    async function checkAuth() {
+      try {
+        const res = await fetch('/api/auth/status');
+        if (!res.ok) {
+          setAuthStatus('unknown');
+          return;
+        }
+        const data = await res.json();
+        if (data.authenticated === true) {
+          setAuthStatus('authenticated');
+        } else if (data.missingCredentials === true || data.authenticated === false) {
+          setAuthStatus('unauthenticated');
+        } else {
+          setAuthStatus('unknown');
+        }
+      } catch (e) {
+        setAuthStatus('unknown');
+      }
+    }
+    checkAuth();
+  }, []);
+
+  const cancelGeneration = async () => {
+    if (abortController) {
+      abortController.abort();
+    }
+    try {
+      await fetch('/api/generate/cancel', { method: 'DELETE' });
+    } catch (e) {}
+    setStage('idle');
+    setErrorDetails(null);
+  };
+
   const startGeneration = async () => {
     setStage('initializing');
     setErrorDetails(null);
     setReportUrl(null);
+    const controller = new AbortController();
+    setAbortController(controller);
     
     try {
       const response = await fetch('/api/generate', {
         method: 'POST',
+        signal: controller.signal,
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           clientKey: config.clientKey,
@@ -114,7 +178,7 @@ export function Step4Generate({ clients }: Step4Props) {
                   // or provide an API route to download it.
                   // For now, we store the metadata in the store and advance to Step 5.
                   const fileName = data.output_path.split(/[\/\\]/).pop();
-                  setReportUrl('/api/download?path=' + encodeURIComponent(data.output_path));
+                  setReportUrl(`/api/download/${config.clientKey}/${fileName}`);
                   useWizardStore.setState({ 
                     reportMetadata: {
                       id: fileName,
@@ -140,6 +204,7 @@ export function Step4Generate({ clients }: Step4Props) {
         }
       }
     } catch (err: any) {
+      if (err.name === 'AbortError') return;
       setStage('error');
       setErrorDetails(err.message || "An unknown error occurred during generation.");
       toast.error("Pipeline failed.");
@@ -231,16 +296,58 @@ export function Step4Generate({ clients }: Step4Props) {
         </Card>
 
         {stage === 'idle' || stage === 'error' ? (
+          <div className="space-y-4">
+            {authStatus === 'unauthenticated' && (
+              <Alert variant="destructive">
+                <AlertCircle className="h-4 w-4" />
+                <AlertTitle>Google authentication required</AlertTitle>
+                <AlertDescription className="mt-2 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+                  <span>Connect your Google account before generating a report.</span>
+                  <Link href="/authenticate" className="text-sm font-semibold underline underline-offset-2">
+                    Go to Authentication page
+                  </Link>
+                </AlertDescription>
+              </Alert>
+            )}
+            
+            {authStatus === 'unknown' && (
+              <Alert className="bg-amber-500/10 text-amber-600 dark:text-amber-500 border-amber-500/50">
+                <AlertCircle className="h-4 w-4 !text-amber-600" />
+                <AlertTitle>Authentication status unknown</AlertTitle>
+                <AlertDescription>
+                  We could not verify your authentication status, but you can try to proceed.
+                </AlertDescription>
+              </Alert>
+            )}
+
+            <div className="flex items-center gap-3">
+              <Button variant="outline" onClick={prevStep} disabled={stage !== 'idle' && stage !== 'error'}>
+                Back
+              </Button>
+              <Button 
+                onClick={startGeneration} 
+                disabled={authStatus === 'checking' || authStatus === 'unauthenticated'}
+                className={cn("flex-1 gap-2", stage === 'error' && "bg-amber-600 hover:bg-amber-700")}
+              >
+                {authStatus === 'checking' ? (
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                ) : stage === 'error' ? (
+                  <RefreshCw className="h-4 w-4" />
+                ) : (
+                  <Play className="h-4 w-4" />
+                )}
+                {authStatus === 'checking' 
+                  ? "Checking Authentication..." 
+                  : stage === 'error' 
+                  ? "Retry Generation" 
+                  : "Start Generation Pipeline"}
+              </Button>
+            </div>
+          </div>
+        ) : stage !== 'done' ? (
           <div className="flex items-center gap-3">
-            <Button variant="outline" onClick={prevStep} disabled={stage !== 'idle' && stage !== 'error'}>
-              Back
-            </Button>
-            <Button 
-              onClick={startGeneration} 
-              className={cn("flex-1 gap-2", stage === 'error' && "bg-amber-600 hover:bg-amber-700")}
-            >
-              {stage === 'error' ? <RefreshCw className="h-4 w-4" /> : <Play className="h-4 w-4" />}
-              {stage === 'error' ? "Retry Generation" : "Start Generation Pipeline"}
+            <Button variant="destructive" onClick={cancelGeneration} className="w-full gap-2">
+              Cancel Generation
             </Button>
           </div>
         ) : null}
@@ -271,6 +378,11 @@ export function Step4Generate({ clients }: Step4Props) {
                   <div className={cn("flex items-center gap-3", stage === 'collecting' ? "text-foreground" : "text-muted-foreground")}>
                     {getStageIcon(stage, ['collecting'])}
                     <span className="font-medium">Collecting Data (GSC & GA4)</span>
+                  </div>
+
+                  <div className={cn("flex items-center gap-3", stage === 'collecting' ? "text-foreground" : "text-muted-foreground")}>
+                    {getStageIcon(stage, ['collecting'])}
+                    <span className="font-medium">Collecting Core Web Vitals (PageSpeed)</span>
                   </div>
                   
                   <div className={cn("flex items-center gap-3", stage === 'processing' ? "text-foreground" : "text-muted-foreground")}>
@@ -346,7 +458,3 @@ export function Step4Generate({ clients }: Step4Props) {
   );
 }
 
-// Quick fallback for icons missing from previous imports in this file
-function RefreshCw(props: any) {
-  return <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
-}

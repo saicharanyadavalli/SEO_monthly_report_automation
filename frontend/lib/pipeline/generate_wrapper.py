@@ -64,7 +64,7 @@ def run_mock(company_key: str, skip_llm: bool):
     }), flush=True)
 
 
-def run_pipeline(company_key: str, skip_llm: bool, slide_list: list = None):
+def run_pipeline(company_key: str, skip_llm: bool, slide_list: list = None, model: str = None):
     try:
         from report_generator.pipeline import ReportPipeline
         
@@ -72,7 +72,8 @@ def run_pipeline(company_key: str, skip_llm: bool, slide_list: list = None):
             company_key=company_key,
             progress_callback=progress_callback,
             skip_llm=skip_llm,
-            slide_list=slide_list
+            slide_list=slide_list,
+            model=model
         )
         
         result = pipeline.run()
@@ -120,8 +121,14 @@ if __name__ == "__main__":
         idx = sys.argv.index("--slide-list")
         if idx + 1 < len(sys.argv):
             slide_list = sys.argv[idx + 1].split(",")
+            
+    model = None
+    if "--model" in sys.argv:
+        idx = sys.argv.index("--model")
+        if idx + 1 < len(sys.argv):
+            model = sys.argv[idx + 1]
     
     if use_mock:
         run_mock(company_key, skip_llm)
     else:
-        run_pipeline(company_key, skip_llm, slide_list)
+        run_pipeline(company_key, skip_llm, slide_list, model)

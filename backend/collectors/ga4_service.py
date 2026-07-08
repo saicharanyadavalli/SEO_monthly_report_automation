@@ -150,7 +150,7 @@ class GA4Service:
         results = []
 
         for start_dt, end_dt in self._month_ranges(months):
-            month_label = start_dt.strftime("%b %Y")
+            month_label = start_dt.strftime("%B %Y")
             logger.info("Fetching GA4 data for %s...", month_label)
 
             try:

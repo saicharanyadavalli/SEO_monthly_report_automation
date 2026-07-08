@@ -15,7 +15,6 @@ from config.settings import settings
 from collectors.gsc_service import GSCService
 from collectors.ga4_service import GA4Service
 from ai.insight_generator import AIInsightGenerator
-from .data_builder import SEODataBuilder
 from .chart_generator import ChartGenerator
 from .pptx_generator import PPTXGenerator
 
@@ -66,11 +65,13 @@ class ReportPipeline:
         progress_callback: Optional[Callable[[PipelineProgress], None]] = None,
         skip_llm: bool = False,
         slide_list: Optional[List[str]] = None,
+        model: Optional[str] = None,
     ) -> None:
         self.company_key = company_key.lower()
         self.progress_callback = progress_callback
         self.skip_llm = skip_llm
         self.slide_list = slide_list
+        self.model = model
 
         self.company: Optional[CompanyConfig] = None
         self.seo_data: Dict[str, Any] = {}
@@ -223,7 +224,7 @@ class ReportPipeline:
                     "channels_summary": "Channel summary. [Set ANTHROPIC_AUTH_TOKEN to generate]",
                 }
             else:
-                ai_gen = AIInsightGenerator()
+                ai_gen = AIInsightGenerator(model=self.model) if self.model else AIInsightGenerator()
                 self.texts = ai_gen.generate_all_insights(self.seo_data, self.company_key)
 
             self._emit_progress(PipelineStep.GENERATE_INSIGHTS, "AI insights generated", is_complete=True)
