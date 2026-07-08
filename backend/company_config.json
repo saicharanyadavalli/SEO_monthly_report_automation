@@ -1,0 +1,163 @@
+{
+  "companies": {
+    "sigmainfo": {
+      "name": "Sigma Infosolutions",
+      "gsc_url": "https://www.sigmainfo.net/",
+      "url_speedvital": "https://www.sigmainfo.net/",
+      "header_color": "#8DC321",
+      "accent_color": "#3AA378",
+      "ga4_property_id": "358885883",
+      "brand_terms": [
+        "sigma",
+        "sigmainfo",
+        "sigma info",
+        "sigma infosolutions",
+        "sigma infosolution",
+        "sigmainfo.net",
+        "sigma infosolutions ltd",
+        "sigma info solutions"
+      ]
+    },
+    "lendfoundry": {
+      "name": "LendFoundry",
+      "gsc_url": "https://lendfoundry.com/",
+      "url_speedvital": "https://lendfoundry.com/",
+      "ga4_property_id": "398561184",
+      "brand_terms": [
+        "lendfoundry",
+        "lend foundry",
+        "lendfoundry.com",
+        "lend foundry.com",
+        "lendfoundry ai"
+      ],
+      "header_color": "#1A56DB",
+      "accent_color": "#0E9F6E"
+    },
+    "gccxglobal": {
+      "name": "GCCX Global",
+      "gsc_url": "sc-domain:gccxglobal.com",
+      "url_speedvital": "https://gccxglobal.com/",
+      "header_color": "#7C3AED",
+      "accent_color": "#EC4899",
+      "ga4_property_id": "491595852",
+      "brand_terms": [
+        "gccx",
+        "gcc",
+        "gccx global",
+        "gccxglobal",
+        "gccxglobal.com",
+        "gccx global.com"
+      ]
+    },
+    "superk": {
+      "name": "SuperK",
+      "gsc_url": "https://www.superk.in/",
+      "url_speedvital": "https://www.superk.in/",
+      "header_color": "#E8420B",
+      "accent_color": "#F5A623",
+      "ga4_property_id": "464495483",
+      "brand_terms": [
+        "superk",
+        "super k",
+        "superk.in",
+        "superk ai",
+        "super k.in"
+      ]
+    },
+    "visitapp": {
+      "name": "Visit App",
+      "gsc_url": "sc-domain:getvisitapp.com",
+      "url_speedvital": "https://getvisitapp.com/",
+      "header_color": "#059669",
+      "accent_color": "#0891B2",
+      "ga4_property_id": "405932965",
+      "brand_terms": [
+        "visit app",
+        "visitapp",
+        "getvisitapp",
+        "visit",
+        "get visit",
+        "getvisitapp.com"
+      ]
+    },
+    "aasaanwill": {
+      "name": "Aasanwill",
+      "gsc_url": "sc-domain:aasaanwill.com",
+      "url_speedvital": "https://www.aasaanwill.com/",
+      "header_color": "#DC2626",
+      "accent_color": "#F59E0B",
+      "ga4_property_id": "355236982",
+      "brand_terms": [
+        "aasanwill",
+        "aasaanwill",
+        "asaanwill",
+        "asaan will",
+        "aasaan will",
+        "aasaanwill.com",
+        "aasan",
+        "one acre",
+        "aasaanwill ai"
+      ]
+    },
+    "1acre": {
+      "name": "1Acre",
+      "gsc_url": "sc-domain:1acre.in",
+      "url_speedvital": "https://1acre.in/",
+      "header_color": "#16A34A",
+      "accent_color": "#CA8A04",
+      "ga4_property_id": "401516560",
+      "brand_terms": [
+        "1acre",
+        "1 acre",
+        "one acre",
+        "1acre.in",
+        "1 acre.in",
+        "1 acre in"
+      ]
+    },
+    "roado": {
+      "name": "Roado",
+      "gsc_url": "sc-domain:roado.co.in",
+      "url_speedvital": "https://www.roado.tech/in/",
+      "header_color": "#BE185D",
+      "accent_color": "#9333EA",
+      "ga4_property_id": "178644283",
+      "brand_terms": [
+        "roado",
+        "roado.com",
+        "roado co in",
+        "roado.co.in"
+      ]
+    },
+    "growthbyte": {
+      "name": "GrowthByte",
+      "gsc_url": "https://www.growthbyte.ai/",
+      "url_speedvital": "https://www.growthbyte.ai/",
+      "header_color": "#0369A1",
+      "accent_color": "#15803D",
+      "ga4_property_id": "531018727",
+      "brand_terms": [
+        "growthbyte",
+        "growth byte",
+        "growthbyte ai",
+        "growthbyte.ai",
+        "growth byte ai"
+      ]
+    },
+    "thinkbyte": {
+      "name": "ThinkByte",
+      "gsc_url": "sc-domain:thinkbyte.ai",
+      "url_speedvital": "https://thinkbyte.ai/",
+      "header_color": "#1E40AF",
+      "accent_color": "#B45309",
+      "ga4_property_id": "",
+      "brand_terms": [
+        "thinkbyte",
+        "think byte",
+        "thinkbyte.ai",
+        "think byte ai",
+        "thinkbyte ai"
+      ]
+    }
+  }
+}

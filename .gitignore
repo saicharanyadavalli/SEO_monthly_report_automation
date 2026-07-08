@@ -1,0 +1,41 @@
+# Node.js
+node_modules/
+.next/
+out/
+build/
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+npm-debug.log*
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+venv/
+env/
+.pytest_cache/
+.env
+
+# IDE
+.vscode/
+.idea/
+.DS_Store
+
+# OAuth Secrets
+client_secret.json
+token.pickle
+
+# App Specific
+backend/client_secret.json
+backend/token.pickle
+backend/config/client_secret.json
+backend/output/*
+backend/reports/*
+!backend/reports/.gitkeep
+
+backend/temp/*
+!backend/temp/.gitkeep
+backend/README.md

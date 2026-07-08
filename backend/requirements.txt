@@ -1,0 +1,31 @@
+# SEO Report System - Dependencies
+
+# Core
+python-dotenv>=1.0.0
+tenacity>=8.2.0
+
+# Google APIs
+google-api-python-client>=2.100.0
+google-auth-oauthlib>=1.1.0
+google-analytics-data>=0.18.0
+
+# Data Processing
+python-dateutil>=2.8.2
+numpy>=1.24.0
+
+# PowerPoint Generation
+python-pptx>=0.6.21
+lxml>=4.9.0
+
+# Charts
+matplotlib>=3.7.0
+
+# HTTP Client (for LLM API)
+httpx>=0.25.0
+
+# Dashboard UI
+streamlit>=1.28.0
+
+# FastAPI backend (for Next.js frontend integration)
+fastapi>=0.111.0
+uvicorn[standard]>=0.23.0
