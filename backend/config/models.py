@@ -18,6 +18,7 @@ class CompanyConfig:
     header_color: str = "#8DC321"
     accent_color: str = "#3AA378"
     ga4_property_id: str = ""
+    logo_path: str = ""
     brand_terms: List[str] = field(default_factory=list)
 
     @classmethod
@@ -30,6 +31,7 @@ class CompanyConfig:
             header_color=data.get("header_color", "#8DC321"),
             accent_color=data.get("accent_color", "#3AA378"),
             ga4_property_id=data.get("ga4_property_id", ""),
+            logo_path=data.get("logo_path", ""),
             brand_terms=data.get("brand_terms", []),
         )
 
@@ -41,6 +43,7 @@ class CompanyConfig:
             "header_color": self.header_color,
             "accent_color": self.accent_color,
             "ga4_property_id": self.ga4_property_id,
+            "logo_path": self.logo_path,
             "brand_terms": self.brand_terms,
         }
 

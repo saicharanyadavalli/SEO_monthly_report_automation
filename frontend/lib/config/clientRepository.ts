@@ -7,6 +7,7 @@ export interface ClientConfig {
   gsc_url: string; // GSC property URL (e.g., sc-domain:example.com)
   url_speedvital?: string; // Optional: URL for PageSpeed Insights (if different from GSC)
   ga4_property_id: string;
+  logo_path?: string;
   brand_terms: string[];
   header_color: string; // primary_color
   accent_color: string; // secondary_color
@@ -27,6 +28,7 @@ export async function getAllClients(): Promise<ClientConfig[]> {
       gsc_url: config.gsc_url || '',
       url_speedvital: config.url_speedvital || '',
       ga4_property_id: config.ga4_property_id || '',
+      logo_path: config.logo_path || '',
       brand_terms: config.brand_terms || [],
       header_color: config.header_color || '#1e3a8a',
       accent_color: config.accent_color || '#3b82f6',

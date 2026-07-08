@@ -32,6 +32,7 @@ export function ClientList({ initialClients }: { initialClients: ClientConfig[] 
   const [brandTermsInput, setBrandTermsInput] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [deleteConfirmation, setDeleteConfirmation] = useState("");
+  const [logoFile, setLogoFile] = useState<File | null>(null);
 
   const filteredClients = useMemo(() => {
     return clients.filter(c => 
@@ -54,6 +55,7 @@ export function ClientList({ initialClients }: { initialClients: ClientConfig[] 
       accent_color: "#3b82f6"
     });
     setBrandTermsInput("");
+    setLogoFile(null);
     setIsFormOpen(true);
   };
 
@@ -61,6 +63,7 @@ export function ClientList({ initialClients }: { initialClients: ClientConfig[] 
     setEditingClient(client);
     setFormData(client);
     setBrandTermsInput(client.brand_terms.join(", "));
+    setLogoFile(null);
     setIsFormOpen(true);
   };
 
@@ -103,18 +106,44 @@ export function ClientList({ initialClients }: { initialClients: ClientConfig[] 
     setIsSubmitting(true);
     
     try {
+      let currentFormData = { ...formData };
+
+      // Handle logo upload
+      if (logoFile) {
+        const reader = new FileReader();
+        const base64Promise = new Promise<string>((resolve) => {
+          reader.onload = () => resolve(reader.result as string);
+          reader.readAsDataURL(logoFile);
+        });
+        const base64 = await base64Promise;
+        
+        const uploadRes = await fetch('/api/upload-logo', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            key: formData.key,
+            imageBase64: base64,
+            filename: logoFile.name
+          })
+        });
+        const uploadData = await uploadRes.json();
+        if (uploadData.path) {
+          currentFormData.logo_path = uploadData.path;
+        }
+      }
+
       if (editingClient) {
-        const result = await updateClientAction(editingClient.key, formData);
+        const result = await updateClientAction(editingClient.key, currentFormData);
         if (result.error) throw new Error(result.error);
         
-        setClients(clients.map(c => c.key === editingClient.key ? { ...c, ...formData } as ClientConfig : c));
-        toast.success(`Client ${formData.name} updated successfully.`);
+        setClients(clients.map(c => c.key === editingClient.key ? { ...c, ...currentFormData } as ClientConfig : c));
+        toast.success(`Client ${currentFormData.name} updated successfully.`);
       } else {
-        const result = await createClientAction(formData as ClientConfig);
+        const result = await createClientAction(currentFormData as ClientConfig);
         if (result.error) throw new Error(result.error);
         
-        setClients([...clients, formData as ClientConfig]);
-        toast.success(`Client ${formData.name} added successfully.`);
+        setClients([...clients, currentFormData as ClientConfig]);
+        toast.success(`Client ${currentFormData.name} added successfully.`);
       }
       setIsFormOpen(false);
     } catch (err: any) {
@@ -299,6 +328,24 @@ export function ClientList({ initialClients }: { initialClients: ClientConfig[] 
                 <Label htmlFor="url_speedvital">SpeedVital URL</Label>
                 <Input id="url_speedvital" name="url_speedvital" value={formData.url_speedvital || ""} onChange={handleFormChange} placeholder="https://acme.com" />
                 <p className="text-[10px] text-muted-foreground">Optional. Used specifically for PageSpeed/Core Web Vitals if different from GSC.</p>
+              </div>
+
+              <div className="grid gap-2">
+                <Label htmlFor="logo">Company Logo</Label>
+                <Input 
+                  id="logo" 
+                  type="file" 
+                  accept="image/*" 
+                  onChange={(e) => {
+                    if (e.target.files && e.target.files.length > 0) {
+                      setLogoFile(e.target.files[0]);
+                    }
+                  }} 
+                />
+                {formData.logo_path && !logoFile && (
+                  <p className="text-[10px] text-muted-foreground">Current logo: {formData.logo_path.split(/[\\/]/).pop()}</p>
+                )}
+                <p className="text-[10px] text-muted-foreground">Optional. This logo will be placed on the cover slide of the PPTX report.</p>
               </div>
 
               <div className="grid gap-2">

@@ -341,11 +341,12 @@ Page data:
 {rows}
 
 Rules:
-Write each bullet as 2 full sentences on a single line with no leading dash, hyphen, or number.
+Write each bullet as 2-3 full sentences on a single line with no leading dash, hyphen, or number.
 Start the first bullet with the page that gained the most clicks.
 Include the exact click numbers and the change amount in each bullet.
-Note the content type (blog post, service page, careers page etc.) and why it likely gained traffic.
-Each bullet must be 20 to 40 words.
+Provide potential reasons for the traffic increase (e.g., seasonality, algorithm updates, or content relevance).
+Suggest actionable strategies to capitalize on this upward trend.
+Each bullet must be 30 to 60 words.
 Output only the {num_bullets} bullet lines, nothing else."""
 
     def _build_prompt_content_trending_down(self, data: Dict) -> str:
@@ -362,11 +363,12 @@ Page data:
 {rows}
 
 Rules:
-Write each bullet as 2 full sentences on a single line with no leading dash, hyphen, or number.
+Write each bullet as 2-3 full sentences on a single line with no leading dash, hyphen, or number.
 Start the first bullet with the page that lost the most clicks.
 Include the exact click numbers and the decline amount in each bullet.
-Suggest one concrete action to recover traffic for each declining page.
-Each bullet must be 30 to 50 words.
+Explain potential reasons for the drop (e.g., lost rankings, keyword decay, seasonality, or technical issues).
+Suggest one concrete action or optimization strategy to recover traffic for each declining page.
+Each bullet must be 30 to 60 words.
 Output only the {num_bullets} bullet lines, nothing else."""
 
     def _build_prompt_branded_kw(self, data: Dict) -> str:

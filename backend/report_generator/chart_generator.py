@@ -68,7 +68,7 @@ class ChartGenerator:
 
     def _savefig(self, fig: plt.Figure, path: Path) -> None:
         """Save figure and close."""
-        fig.savefig(path, dpi=150, bbox_inches="tight", facecolor=BG, edgecolor="none")
+        fig.savefig(path, dpi=300, bbox_inches="tight", facecolor=BG, edgecolor="none")
         plt.close(fig)
         logger.info("Generated: %s", path.name)
 

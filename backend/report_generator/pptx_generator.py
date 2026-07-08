@@ -119,7 +119,18 @@ class PPTXGenerator:
 
     def _add_image(self, slide, path, l, t, w, h):
         if os.path.exists(path):
-            slide.shapes.add_picture(path, self._px(l), self._px(t), self._px(w), self._px(h))
+            pic = slide.shapes.add_picture(path, self._px(l), self._px(t))
+            
+            target_w = self._px(w)
+            target_h = self._px(h)
+            
+            scale = min(target_w / pic.width, target_h / pic.height)
+            
+            pic.width = int(pic.width * scale)
+            pic.height = int(pic.height * scale)
+            
+            pic.left = self._px(l) + (target_w - pic.width) // 2
+            pic.top = self._px(t) + (target_h - pic.height) // 2
         else:
             self._add_rect(slide, l, t, w, h, fill=C_GRAY_ALT)
             self._add_text(slide, l+0.1, t+h/2-0.15, w-0.2, 0.3,
@@ -313,10 +324,13 @@ class PPTXGenerator:
     def _slide_cover(self, prs, data, month_label):
         slide = self._add_slide(prs)
         self._add_rect(slide, 0, 0, 10, 0.75, fill=self.bar_color)
-        self._add_rect(slide, 3.4, 1.45, 3.3, 1.6, fill=C_DARK)
-        self._add_text(slide, 3.45, 2.0, 3.2, 0.7,
-                       self.company.name, size=20, bold=True,
-                       color=C_WHITE, align=PP_ALIGN.CENTER)
+        if getattr(self.company, "logo_path", None) and os.path.exists(self.company.logo_path):
+            self._add_image(slide, self.company.logo_path, 3.4, 1.45, 3.3, 1.6)
+        else:
+            self._add_rect(slide, 3.4, 1.45, 3.3, 1.6, fill=C_DARK)
+            self._add_text(slide, 3.45, 2.0, 3.2, 0.7,
+                           self.company.name, size=20, bold=True,
+                           color=C_WHITE, align=PP_ALIGN.CENTER)
         self._add_text(slide, 0.4, 3.3, 9.2, 0.75,
                        f"SEO Performance Report: {month_label}",
                        size=SZ_COVER_T, bold=True, color=C_DARK, align=PP_ALIGN.CENTER)

@@ -39,3 +39,4 @@ backend/reports/*
 backend/temp/*
 !backend/temp/.gitkeep
 backend/README.md
+backend/test_pptx.py
